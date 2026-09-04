@@ -1,0 +1,1129 @@
+<!DOCTYPE html>
+<html lang="ru" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Naive + Mieru by RIXXX v1.5.0</title>
+  <meta name="description" content="Panel Naive + Mieru — web management for NaiveProxy + Mieru by RIXXX" />
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Ccircle cx='20' cy='20' r='18' fill='%23c08552'/%3E%3Cpath d='M13 20h14M20 13l7 7-7 7' stroke='%23fff' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <!-- QR code library (self-contained, no external dep required) -->
+  <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     LOGIN PAGE
+════════════════════════════════════════════════════════════════ -->
+<div id="page-login" class="page active">
+  <div class="login-bg"></div>
+
+  <!-- Language + Theme controls on login -->
+  <div class="login-controls">
+    <button class="ctrl-btn lang-btn" id="login-lang-btn" title="Switch language">RU</button>
+    <button class="ctrl-btn" id="login-theme-btn" title="Toggle theme">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/>
+        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+        <line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/>
+        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+      </svg>
+    </button>
+  </div>
+
+  <div class="login-card">
+    <div class="login-logo">
+      <div class="logo-icon">
+        <svg viewBox="0 0 40 40" fill="none">
+          <circle cx="20" cy="20" r="18" stroke="var(--accent)" stroke-width="2.5"/>
+          <path d="M13 20h14M20 13l7 7-7 7" stroke="var(--accent)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <div>
+        <h1 data-i18n="login.title">RIXXX Panel</h1>
+        <p data-i18n="login.subtitle">Naive + Mieru Management</p>
+      </div>
+    </div>
+    <form id="login-form" autocomplete="off">
+      <div class="form-group">
+        <label data-i18n="login.username">Username</label>
+        <input type="text" id="login-user" name="username"
+             data-i18n-ph="login.userPlaceholder"
+             placeholder="admin" required autocomplete="username"
+             aria-label="Username" />
+      </div>
+      <div class="form-group">
+        <label data-i18n="login.password">Password</label>
+        <div class="input-pw-wrap">
+          <input type="password" id="login-pass" name="password"
+                 data-i18n-ph="login.passPlaceholder"
+                 placeholder="••••••••" required autocomplete="current-password"
+                 aria-label="Password" />
+          <button type="button" class="btn-eye" data-action="toggle-pw" data-target="login-pass" aria-label="Toggle password visibility">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+          </button>
+        </div>
+      </div>
+      <div id="login-error" class="alert alert-error hidden"></div>
+      <button type="submit" class="btn btn-primary btn-block" id="login-btn">
+        <span data-i18n="login.signIn">Sign In</span>
+      </button>
+    </form>
+    <div class="login-footer">
+      <a href="https://t.me/russian_paradice_vpn" target="_blank" data-i18n="login.telegramSupport">Telegram Support</a>
+      <span>·</span>
+      <a href="https://github.com/cwash797-cmd/Panel-Naive-Mieru-by-RIXXX" target="_blank" data-i18n="login.github">GitHub</a>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     MAIN APP (hidden until login)
+════════════════════════════════════════════════════════════════ -->
+<div id="app" class="hidden">
+
+  <!-- Sidebar -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
+      <svg viewBox="0 0 40 40" fill="none" width="30" height="30">
+        <circle cx="20" cy="20" r="18" stroke="var(--accent)" stroke-width="2.5"/>
+        <path d="M13 20h14M20 13l7 7-7 7" stroke="var(--accent)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <div>
+        <div>RIXXX Panel</div>
+        <div class="sidebar-product-label">Naive + Mieru <span id="sidebar-version">v1.5.0</span></div>
+      </div>
+    </div>
+    <nav class="sidebar-nav">
+      <a href="#" class="nav-item active" data-page="dashboard">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+        <span data-i18n="nav.dashboard">Dashboard</span>
+      </a>
+      <a href="#" class="nav-item" data-page="users">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        <span data-i18n="nav.users">Users</span>
+      </a>
+      <a href="#" class="nav-item" data-page="mirrored">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+        <span>Зеркальные</span>
+      </a>
+      <a href="#" class="nav-item" data-page="settings">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        <span data-i18n="nav.settings">Server Settings</span>
+      </a>
+      <a href="#" class="nav-item" data-page="federation">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="5" r="3"/><circle cx="5" cy="19" r="3"/><circle cx="19" cy="19" r="3"/><line x1="12" y1="8" x2="5" y2="16"/><line x1="12" y1="8" x2="19" y2="16"/></svg>
+        <span data-i18n="nav.federation">Federation</span>
+      </a>
+      <a href="#" class="nav-item" data-page="monitoring">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+        <span data-i18n="nav.monitoring">Monitoring</span>
+      </a>
+      <a href="#" class="nav-item" data-page="logs">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+        <span data-i18n="nav.logs">Logs</span>
+      </a>
+      <a href="#" class="nav-item" data-page="diagnostics">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+        <span data-i18n="nav.diagnostics">Diagnostics</span>
+      </a>
+    </nav>
+    <div class="sidebar-bottom">
+      <div class="avatar" id="sidebar-avatar">A</div>
+      <div>
+        <div class="sidebar-username" id="sidebar-uname">admin</div>
+        <div class="sidebar-role" data-i18n="nav.administrator">Administrator</div>
+      </div>
+      <button class="btn-logout" id="btn-logout" title="Logout" aria-label="Logout">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+      </button>
+    </div>
+  </aside>
+
+  <!-- Main content -->
+  <main class="main-content">
+    <header class="topbar">
+      <button class="menu-toggle" id="menu-toggle" aria-label="Toggle sidebar">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </button>
+      <h2 class="topbar-title" id="topbar-title" data-i18n="nav.dashboard">Dashboard</h2>
+      <div class="topbar-right">
+        <div class="status-dot" id="ws-dot" title="Real-time connection"></div>
+        <span class="topbar-version" id="topbar-version">v1.5.0</span>
+        <button class="ctrl-btn lang-btn" id="topbar-lang-btn" title="Switch language">RU</button>
+        <button class="ctrl-btn" id="topbar-theme-btn" title="Toggle theme">
+          <svg id="topbar-theme-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/>
+            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+            <line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/>
+            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+          </svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- ── DASHBOARD ─────────────────────────────────────────── -->
+    <section id="page-dashboard" class="content-page active">
+      <div class="grid grid-4">
+        <div class="stat-card">
+          <div class="stat-icon naive">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          </div>
+          <div class="stat-body">
+            <div class="stat-label" data-i18n="dashboard.naiveProxy">NaiveProxy</div>
+            <div class="stat-value" id="d-naive-status">—</div>
+          </div>
+          <div class="stat-actions">
+            <button class="btn btn-xs btn-success"  data-action="svc" data-svc="naive" data-svc-action="start"   data-i18n="dashboard.start">Start</button>
+            <button class="btn btn-xs btn-warning"  data-action="svc" data-svc="naive" data-svc-action="restart" data-i18n="dashboard.restart">Restart</button>
+            <button class="btn btn-xs btn-danger"   data-action="svc" data-svc="naive" data-svc-action="stop"    data-i18n="dashboard.stop">Stop</button>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon mieru">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+          </div>
+          <div class="stat-body">
+            <div class="stat-label" data-i18n="dashboard.mieru">Mieru (mita)</div>
+            <div class="stat-value" id="d-mieru-status">—</div>
+          </div>
+          <div class="stat-actions">
+            <button class="btn btn-xs btn-success"  data-action="svc" data-svc="mita" data-svc-action="start"   data-i18n="dashboard.start">Start</button>
+            <button class="btn btn-xs btn-warning"  data-action="svc" data-svc="mita" data-svc-action="restart" data-i18n="dashboard.restart">Restart</button>
+            <button class="btn btn-xs btn-danger"   data-action="svc" data-svc="mita" data-svc-action="stop"    data-i18n="dashboard.stop">Stop</button>
+          </div>
+        </div>
+        <!-- Hy2 (Hysteria2) service card — hidden until installed -->
+        <div class="stat-card hidden" id="d-hy2-card">
+          <div class="stat-icon hy2">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+          </div>
+          <div class="stat-body">
+            <div class="stat-label" data-i18n="dashboard.hy2">Hysteria2</div>
+            <div class="stat-value" id="d-hy2-status">—</div>
+          </div>
+          <div class="stat-actions">
+            <button class="btn btn-xs btn-success"  data-action="svc" data-svc="hy2" data-svc-action="start"   data-i18n="dashboard.start">Start</button>
+            <button class="btn btn-xs btn-warning"  data-action="svc" data-svc="hy2" data-svc-action="restart" data-i18n="dashboard.restart">Restart</button>
+            <button class="btn btn-xs btn-danger"   data-action="svc" data-svc="hy2" data-svc-action="stop"    data-i18n="dashboard.stop">Stop</button>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon users">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+          </div>
+          <div class="stat-body">
+            <div class="stat-label" data-i18n="dashboard.activeUsers">Active Users</div>
+            <div class="stat-value" id="d-user-count">—</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon system">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+          </div>
+          <div class="stat-body">
+            <div class="stat-label" data-i18n="dashboard.server">Server</div>
+            <div class="stat-value" id="d-domain">—</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid grid-3 mt-4">
+        <div class="card">
+          <div class="card-header" data-i18n="dashboard.cpuUsage">CPU Usage</div>
+          <div class="card-body">
+            <div class="progress-label"><span data-i18n="dashboard.usage">Usage</span><span id="d-cpu">—%</span></div>
+            <div class="progress-bar"><div class="progress-fill" id="d-cpu-bar" style="width:0%"></div></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header" data-i18n="dashboard.memory">Memory</div>
+          <div class="card-body">
+            <div class="progress-label"><span data-i18n="dashboard.used">Used</span><span id="d-ram">—</span></div>
+            <div class="progress-bar"><div class="progress-fill" id="d-ram-bar" style="width:0%"></div></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header" data-i18n="dashboard.disk">Disk</div>
+          <div class="card-body">
+            <div class="progress-label"><span data-i18n="dashboard.used">Used</span><span id="d-disk">—</span></div>
+            <div class="progress-bar"><div class="progress-fill" id="d-disk-bar" style="width:0%"></div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid grid-2 mt-4">
+        <div class="card">
+          <div class="card-header" data-i18n="dashboard.systemInfo">System Info</div>
+          <div class="card-body info-list" id="d-sysinfo"></div>
+        </div>
+        <div class="card">
+          <div class="card-header" data-i18n="dashboard.quickLinks">Quick Links</div>
+          <div class="card-body">
+            <a href="https://github.com/klzgrad/naiveproxy/releases" target="_blank" class="quick-link">NaiveProxy Releases</a>
+            <a href="https://github.com/enfein/mieru/releases"       target="_blank" class="quick-link">Mieru Releases</a>
+            <a href="https://github.com/KaringX/karing/releases"     target="_blank" class="quick-link">Karing Client (iOS/Android/Win/Mac/Linux)</a>
+            <a href="https://github.com/SagerNet/sing-box/releases"  target="_blank" class="quick-link">Sing-box Client</a>
+            <a href="https://apps.apple.com/app/sing-box/id6451272673" target="_blank" class="quick-link">Sing-box iOS</a>
+            <a href="https://t.me/russian_paradice_vpn"              target="_blank" class="quick-link">Telegram Support</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── USERS ─────────────────────────────────────────────── -->
+    <section id="page-users" class="content-page">
+      <div class="page-header">
+        <h3 data-i18n="users.title">Users</h3>
+        <button class="btn btn-primary" id="btn-add-user" data-action="open-add-user">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          <span data-i18n="users.addUser">Add User</span>
+        </button>
+      </div>
+
+      <div class="card">
+        <div class="table-wrap">
+          <table class="data-table" id="users-table">
+            <thead>
+              <tr>
+                <th data-i18n="users.username">Username</th>
+                <th data-i18n="users.email">Email</th>
+                <th data-i18n="users.expiry">Expiry</th>
+                <th data-i18n="users.naive">Naive</th>
+                <th data-i18n="users.mieru">Mieru</th>
+                <th data-i18n="users.hy2Col">Hy2</th>
+                <th data-i18n="users.naiveMB">Naive (MB)</th>
+                <th data-i18n="users.mieruMB">Mieru (MB)</th>
+                <th data-i18n="users.hy2MB">Hy2 (MB)</th>
+                <th data-i18n="users.quotaMB">Quota (MB)</th>
+                <th data-i18n="users.quotaUsed">Quota</th>
+                <th data-i18n="users.lastActive">Last Active</th>
+                <th data-i18n="users.actions">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="users-tbody">
+              <tr><td colspan="12" class="table-empty" data-i18n="users.loading">Loading users…</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Add / Edit User modal -->
+      <div class="modal-overlay hidden" id="user-modal">
+        <div class="modal">
+          <div class="modal-header">
+            <h4 id="user-modal-title" data-i18n="users.addTitle">Add User</h4>
+            <button class="modal-close" data-action="close-user-modal" aria-label="Close">✕</button>
+          </div>
+          <div class="modal-body">
+            <input type="hidden" id="user-id" />
+            <div class="form-row">
+              <div class="form-group">
+                <label data-i18n="users.username">Username *</label>
+                <input type="text" id="u-username" data-i18n-ph="users.usernamePlaceholder" placeholder="john_doe" required />
+              </div>
+              <div class="form-group">
+                <label data-i18n="users.email">Email</label>
+                <input type="email" id="u-email" data-i18n-ph="users.emailPlaceholder" placeholder="john@example.com" />
+                <small class="form-hint" data-i18n="users.emailFedHint">Add an email so this user's configs are pulled from your other (federated) servers into one subscription link.</small>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label data-i18n="users.passwordLabel">Password *</label>
+                <div class="input-pw-wrap">
+                  <input type="password" id="u-password" data-i18n-ph="users.passwordPlaceholder" placeholder="Minimum 8 chars" />
+                  <button type="button" class="btn-eye" data-action="toggle-pw" data-target="u-password" aria-label="Toggle password visibility">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                  </button>
+                </div>
+                <div class="pw-actions">
+                  <button type="button" class="btn btn-sm btn-secondary" data-action="gen-password" data-i18n="users.genPassword" title="Generate a safe random password (16 chars, a-z A-Z 0-9)">🎲 Random password</button>
+                  <button type="button" class="btn btn-sm btn-secondary" data-action="copy-password" data-i18n="users.copyPassword" title="Copy password to clipboard">📋 Copy</button>
+                </div>
+                <small id="u-pass-hint" data-i18n="users.passwordHintNew">Required for new user</small>
+              </div>
+              <div class="form-group">
+                <label data-i18n="users.expiryLabel">Expiry Date</label>
+                <input type="datetime-local" id="u-expiry" />
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label data-i18n="users.quotaLabel">Quota (MB, 0 = unlimited)</label>
+                <input type="number" id="u-quota" value="0" min="0" />
+              </div>
+              <div class="form-group">
+                <label data-i18n="users.protocolsLabel">Protocols</label>
+                <div class="checkbox-row">
+                  <label class="checkbox"><input type="checkbox" id="p-naive" checked /> <span data-i18n="users.naiveProxyLabel">NaiveProxy</span></label>
+                  <label class="checkbox"><input type="checkbox" id="p-mieru" checked /> <span data-i18n="users.mieruLabel">Mieru</span></label>
+                  <label class="checkbox" id="p-hy2-wrap"><input type="checkbox" id="p-hy2" /> <span data-i18n="users.hy2Label">Hysteria2</span></label>
+                </div>
+                <p id="p-hy2-hint" class="hidden" style="margin-top:4px;color:var(--text-secondary);font-size:12px"
+                   data-i18n="users.hy2NotInstalled">Hysteria2 не установлен — доустановите его в «Настройках сервера», чтобы выдавать hy2-ключи.</p>
+              </div>
+            </div>
+            <div id="user-modal-error" class="alert alert-error hidden"></div>
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-ghost" data-action="close-user-modal" data-i18n="users.cancel">Cancel</button>
+            <button class="btn btn-primary" id="btn-save-user" data-action="save-user" data-i18n="users.save">Save User</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Config download modal -->
+      <div class="modal-overlay hidden" id="config-modal">
+        <div class="modal modal-sm">
+          <div class="modal-header">
+            <h4 data-i18n="config.downloadTitle">Download Client Config</h4>
+            <button class="modal-close" data-action="close-config-modal" aria-label="Close">✕</button>
+          </div>
+          <div class="modal-body">
+            <p style="margin-bottom:12px;color:var(--text-secondary);font-size:13px" data-i18n="config.downloadNote">
+              The user's stored password is embedded automatically. Copy the link or download a config file.
+            </p>
+            <!-- P3: optional Mieru port selector for generated configs -->
+            <div class="form-group" style="margin-bottom:12px">
+              <label data-i18n="config.mieruPortLabel">Mieru port (for JSON configs)</label>
+              <input type="number" id="cfg-mieru-port" min="1025" max="65535"
+                     placeholder="2012" />
+              <p style="margin-top:4px;color:var(--text-secondary);font-size:12px">
+                <span data-i18n="config.mieruPortHint">Leave at the range start unless you want a specific port.</span>
+                <span id="cfg-mieru-port-range"></span>
+              </p>
+            </div>
+            <div id="naive-link-box" class="code-box hidden"></div>
+            <div id="qr-container" class="qr-container hidden">
+              <canvas id="qr-canvas"></canvas>
+              <div class="qr-note" data-i18n="config.qrNote">Scan QR code with client app (iOS: ShadowRocket, Karing)</div>
+            </div>
+
+            <!-- v1.9.0: personal bonus links (per-user, mixed into THIS user's sub). -->
+            <div class="form-group" style="margin-top:16px;border-top:1px solid var(--border);padding-top:14px">
+              <label style="display:flex;align-items:center;gap:6px">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+                <span data-i18n="bonus.title">Bonus links</span>
+              </label>
+              <p style="margin:4px 0 8px;color:var(--text-secondary);font-size:12px" data-i18n="bonus.hint">
+                Extra links (e.g. vless://) added only to THIS user's subscription. No validation — paste as-is.
+              </p>
+              <div id="bonus-links-list"></div>
+              <div style="display:flex;gap:6px;margin-top:8px">
+                <input type="text" id="bonus-link-input" style="flex:1"
+                       data-i18n-ph="bonus.placeholder"
+                       placeholder="vless://... or any link" />
+                <button class="btn btn-secondary" type="button" data-action="add-bonus-link">
+                  <span data-i18n="bonus.add">Add</span>
+                </button>
+              </div>
+              <div style="display:flex;justify-content:flex-end;margin-top:8px">
+                <button class="btn btn-primary btn-sm" type="button" data-action="save-bonus-links">
+                  <span data-i18n="bonus.save">Save bonus links</span>
+                </button>
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-ghost"      data-action="close-config-modal" data-i18n="config.cancel">Cancel</button>
+            <button class="btn btn-secondary"  data-action="dl-naive-link">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+              <span data-i18n="config.naiveLink">Naive Link</span>
+            </button>
+            <button class="btn btn-secondary"  data-action="dl-mieru-link">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+              <span data-i18n="config.mieruLink">Mieru Link</span>
+            </button>
+            <button class="btn btn-secondary hidden"  id="btn-dl-hy2-link" data-action="dl-hy2-link">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+              <span data-i18n="config.hy2Link">Hy2 Link</span>
+            </button>
+            <button class="btn btn-secondary"  data-action="dl-mieru-config">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              <span data-i18n="config.mieruJson">Mieru JSON</span>
+            </button>
+            <button class="btn btn-secondary"  data-action="dl-universal-config">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              <span data-i18n="config.universalConfig">Universal Config</span>
+            </button>
+            <button class="btn btn-primary"    data-action="dl-sub-link">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M4 11a9 9 0 0 1 9 9"/><path d="M4 4a16 16 0 0 1 16 16"/><circle cx="5" cy="19" r="1"/></svg>
+              <span data-i18n="config.subLink">Sub-ссылка</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── SERVER SETTINGS ───────────────────────────────────── -->
+    <section id="page-mirrored" class="content-page">
+      <div class="page-header">
+        <h3>Зеркальные юзеры</h3>
+        <p class="card-desc" style="margin:0">Только чтение — бот зеркалит юзеров напрямую в Caddyfile (naive) и mita-state (mieru)</p>
+      </div>
+      <div class="card">
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead>
+              <tr><th>Username</th><th>Naive</th><th>Mieru</th></tr>
+            </thead>
+            <tbody id="mirrored-tbody">
+              <tr><td colspan="3" class="table-empty">Загрузка…</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <section id="page-settings" class="content-page">
+      <div class="page-header"><h3 data-i18n="settings.title">Server Settings</h3></div>
+      <div class="grid grid-2">
+
+        <!-- v1.4.0: External panel access card -->
+        <div class="card">
+          <div class="card-header" data-i18n="settings.externalTitle">External Panel Access</div>
+          <div class="card-body">
+            <p class="card-desc" data-i18n="settings.externalDesc">
+              Expose the panel via a TLS subdomain (https://panel.&lt;domain&gt;/&lt;webBasePath&gt;/),
+              protected by basic auth. The panel always stays on 127.0.0.1:3000; Caddy reverse-proxies to it.
+              The root and any path outside webBasePath show a static stub.
+            </p>
+            <div class="form-group">
+              <label>
+                <input type="checkbox" id="s-expose-enabled" data-action="toggle-external-fields">
+                <span data-i18n="settings.externalEnable">Enable external access</span>
+              </label>
+            </div>
+            <div id="external-fields">
+              <div class="form-group">
+                <label data-i18n="settings.externalDomain">Panel subdomain</label>
+                <input type="text" id="s-panel-domain" placeholder="panel.example.com" autocomplete="off">
+              </div>
+              <div class="form-group">
+                <label data-i18n="settings.externalWebBasePath">webBasePath (secret path segment)</label>
+                <div class="input-with-btn">
+                  <input type="text" id="s-web-base-path" placeholder="a1b2c3d4e5f60718" autocomplete="off">
+                  <button type="button" class="btn btn-secondary" data-action="gen-web-base-path"
+                          data-i18n="settings.externalGenerate">Generate new</button>
+                </div>
+              </div>
+              <div class="form-group">
+                <label data-i18n="settings.externalBaUser">Basic-auth login</label>
+                <input type="text" id="s-ba-user" placeholder="admin" autocomplete="off">
+              </div>
+              <div class="form-group">
+                <label id="s-ba-pass-label" data-i18n="settings.externalBaPass">Basic-auth password (leave blank to keep)</label>
+                <div class="input-group">
+                  <input type="password" id="s-ba-pass" placeholder="••••••••" autocomplete="new-password">
+                  <button type="button" class="btn-eye" data-action="toggle-pw" data-target="s-ba-pass" aria-label="Toggle visibility">👁</button>
+                </div>
+              </div>
+            </div>
+            <button class="btn btn-primary mt-2" data-action="save-external-access" data-i18n="settings.externalSave">Apply</button>
+            <div id="external-access-msg" class="msg-inline hidden"></div>
+            <div id="external-access-url" class="msg-inline hidden"></div>
+
+            <hr style="border:none;border-top:1px solid var(--border);margin:18px 0">
+            <div class="form-group">
+              <label data-i18n="settings.externalStubTitle">Stub page (shown at subdomain root / outside webBasePath)</label>
+              <p class="hint" data-i18n="settings.externalStubDesc">
+                Static HTML served by Caddy at the panel subdomain root and any path outside webBasePath.
+                Separate from the naive fake-site. Edit and save to replace it.
+              </p>
+              <textarea id="s-panel-stub" rows="8" spellcheck="false"
+                        style="width:100%;font-family:var(--mono,monospace);font-size:12px"
+                        placeholder="&lt;!DOCTYPE html&gt;…"></textarea>
+            </div>
+            <button class="btn btn-secondary" data-action="load-panel-stub" data-i18n="settings.externalStubReload">Reload current</button>
+            <button class="btn btn-primary" data-action="save-panel-stub" data-i18n="settings.externalStubSave">Save stub</button>
+            <div id="panel-stub-msg" class="msg-inline hidden"></div>
+          </div>
+        </div>
+
+        <!-- Probe Secret card -->
+        <div class="card">
+          <div class="card-header" data-i18n="settings.probeSecretTitle">Probe Resistance Secret</div>
+          <div class="card-body">
+            <p class="card-desc" data-i18n="settings.probeSecretDesc">Secret token clients present in headers. Unrecognised clients see the fake site instead.</p>
+
+            <!-- Bug 81: probe_resistance mode selector -->
+            <div class="form-group">
+              <label data-i18n="settings.probeModeLabel">Probe Resistance Mode</label>
+              <select id="s-probe-mode">
+                <option value="bare"   data-i18n="settings.probeModeBare">Bare — probe_resistance (no secret, like reference)</option>
+                <option value="secret" data-i18n="settings.probeModeSecret">Secret — probe_resistance &lt;secret&gt;</option>
+                <option value="off"    data-i18n="settings.probeModeOff">Off — disabled</option>
+              </select>
+              <small class="form-hint" data-i18n="settings.probeModeHint">"Bare" matches a known-good reference server. "Secret" requires a special domain to reach the masquerade.</small>
+            </div>
+
+            <!-- secret input — only relevant for 'secret' mode -->
+            <div class="form-group" id="probe-secret-group">
+              <label data-i18n="settings.probeSecretLabel">Probe Secret (min 8 chars)</label>
+              <div class="input-pw-wrap">
+                <input type="password" id="s-probe-secret"
+                       data-i18n-ph="settings.probeSecretPlaceholder"
+                       placeholder="Enter probe secret" autocomplete="off" />
+                <button type="button" class="btn-eye" data-action="toggle-pw" data-target="s-probe-secret" aria-label="Toggle visibility">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                </button>
+              </div>
+            </div>
+            <button class="btn btn-primary mt-2" data-action="apply-probe-mode" data-i18n="settings.applyProbeMode">Apply</button>
+            <div id="probe-secret-msg" class="msg-inline hidden"></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header" data-i18n="settings.subDomainTitle">Subscription Domain (Sub-ссылка)</div>
+          <div class="card-body">
+            <p class="card-desc" data-i18n="settings.subDomainDesc">Optional dedicated domain for client subscription links (e.g. https://sub.example.com). Leave empty to serve sub-links from the panel domain. Caddy auto-provisions the TLS certificate.</p>
+            <div class="form-group">
+              <label data-i18n="settings.subDomainLabel">Sub base URL</label>
+              <input type="text" id="s-sub-base-url" placeholder="https://sub.example.com" />
+            </div>
+            <div class="alert alert-warning">
+              <strong>⚠</strong> <span data-i18n="settings.subDomainNote">Point an A-record for this host to this server's IP first, otherwise the TLS certificate cannot be issued.</span>
+            </div>
+            <button class="btn btn-primary mt-2" data-action="save-sub-base-url" data-i18n="settings.applySubDomain">Save Sub Domain</button>
+            <div id="sub-base-url-msg" class="msg-inline hidden"></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header" data-i18n="settings.serverFlagTitle">Server flag / label</div>
+          <div class="card-body">
+            <p class="card-desc" data-i18n="settings.serverFlagDesc">Optional emoji/text prefix added to the display name of every config this server hands out (e.g. 🇷🇺 or 🇳🇱 RP). Shown in Shadowrocket, Happ, Karing/NekoBox/Throne, etc. Leave empty for no prefix. Bonus links are not touched — put a flag directly into the bonus link if you want one.</p>
+            <div class="form-group">
+              <label data-i18n="settings.serverFlagLabel">Flag / prefix</label>
+              <input type="text" id="s-server-flag" maxlength="32" placeholder="🇷🇺 RP"
+                     data-i18n-ph="settings.serverFlagPlaceholder" />
+            </div>
+            <button class="btn btn-primary mt-2" data-action="save-server-flag" data-i18n="settings.applyServerFlag">Save Flag</button>
+            <div id="server-flag-msg" class="msg-inline hidden"></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header" data-i18n="settings.fakeSiteTitle">Fake site (masquerade)</div>
+          <div class="card-body">
+            <p class="card-desc" data-i18n="settings.fakeSiteDesc">The site shown to anyone who opens the server domain in a browser (camouflage for DPI/probes). Enter a full https:// URL to reverse-proxy a real site, or leave empty to serve the built-in default fake site. Changes rebuild Caddy automatically.</p>
+            <div class="form-group">
+              <label data-i18n="settings.fakeSiteLabel">Fake site URL</label>
+              <input type="text" id="s-fake-site-url" placeholder="https://www.bing.com"
+                     data-i18n-ph="settings.fakeSitePlaceholder" />
+            </div>
+            <div class="alert alert-warning">
+              <strong>⚠</strong> <span data-i18n="settings.fakeSiteNote">Pick a plausible, always-online site. Leave empty to fall back to the built-in fake site bundled with the panel.</span>
+            </div>
+            <button class="btn btn-primary mt-2" data-action="save-fake-site-url" data-i18n="settings.applyFakeSite">Save Fake Site</button>
+            <div id="fake-site-url-msg" class="msg-inline hidden"></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header" data-i18n="settings.naivePortTitle">NaiveProxy Port</div>
+          <div class="card-body">
+            <p class="card-desc" data-i18n="settings.naivePortDesc">Change the HTTPS port for NaiveProxy. Reloads Caddy only — no service restart.</p>
+            <div class="form-group">
+              <label data-i18n="settings.naivePortLabel">Port (1–65535)</label>
+              <input type="number" id="s-naive-port" min="1" max="65535" value="443" />
+            </div>
+            <div class="alert alert-warning">
+              <strong>⚠</strong> <span data-i18n="settings.naivePortNote">Changing port will require clients to update their configs.</span>
+            </div>
+            <button class="btn btn-primary mt-2" data-action="change-naive-port" data-i18n="settings.applyNaivePort">Apply Naive Port</button>
+            <div id="naive-port-msg" class="msg-inline hidden"></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header" data-i18n="settings.mieruPortTitle">Mieru Port Range</div>
+          <div class="card-body">
+            <p class="card-desc" data-i18n="settings.mieruPortDesc">Change the TCP port range for Mieru. <strong>Requires full Mieru restart.</strong></p>
+            <div class="form-row">
+              <div class="form-group">
+                <label data-i18n="settings.mieruStartLabel">Start Port (1025–65535)</label>
+                <input type="number" id="s-mieru-start" min="1025" max="65535" value="2012" />
+              </div>
+              <div class="form-group">
+                <label data-i18n="settings.mieruEndLabel">End Port (1025–65535)</label>
+                <input type="number" id="s-mieru-end" min="1025" max="65535" value="2022" />
+              </div>
+            </div>
+            <div class="alert alert-warning">
+              <strong>⚠</strong> <span data-i18n="settings.mieruPortNote">UFW rules will be updated automatically. Clients must download new configs.</span>
+            </div>
+            <button class="btn btn-primary mt-2" data-action="change-mieru-ports" data-i18n="settings.applyMieruPorts">Apply Mieru Ports</button>
+            <div id="mieru-port-msg" class="msg-inline hidden"></div>
+          </div>
+        </div>
+
+        <!-- Hysteria2 (Hy2) card — install + port -->
+        <div class="card" id="card-hy2">
+          <div class="card-header" data-i18n="settings.hy2Title">Hysteria2 (Hy2)</div>
+          <div class="card-body">
+            <p class="card-desc" data-i18n="settings.hy2Desc">Hysteria2 — быстрый QUIC/UDP-протокол. Работает поверх UDP и сосуществует с NaiveProxy на TCP/443. Использует общий пул пользователей и сертификат Caddy (второй email не нужен).</p>
+
+            <!-- Not-installed state -->
+            <div id="hy2-not-installed">
+              <div class="alert alert-warning">
+                <strong>ℹ</strong> <span data-i18n="settings.hy2NotInstalled">Hysteria2 ещё не установлен на этом сервере.</span>
+              </div>
+              <div class="form-group">
+                <label data-i18n="settings.hy2PortLabel">UDP-порт (1–65535)</label>
+                <input type="number" id="s-hy2-port" min="1" max="65535" value="443" />
+                <p style="margin-top:4px;color:var(--text-secondary);font-size:12px" data-i18n="settings.hy2PortHint">По умолчанию 443/udp (рядом с Naive TCP/443). Можно изменить на 8443 и т.п.</p>
+              </div>
+              <button class="btn btn-primary mt-2" data-action="install-hy2" id="btn-install-hy2" data-i18n="settings.hy2Install">Доустановить Hy2</button>
+              <div id="hy2-install-msg" class="msg-inline hidden"></div>
+            </div>
+
+            <!-- Installed state -->
+            <div id="hy2-installed" class="hidden">
+              <div class="alert alert-success">
+                <strong>✅</strong> <span data-i18n="settings.hy2Installed">Hysteria2 установлен.</span>
+                <span id="hy2-status-txt"></span>
+              </div>
+              <div class="form-group">
+                <label data-i18n="settings.hy2PortLabel">UDP-порт (1–65535)</label>
+                <input type="number" id="s-hy2-port-installed" min="1" max="65535" value="443" />
+              </div>
+              <div class="alert alert-warning">
+                <strong>⚠</strong> <span data-i18n="settings.hy2PortNote">Смена порта перезапустит Hy2. Клиенты должны обновить ссылки.</span>
+              </div>
+              <button class="btn btn-primary mt-2" data-action="change-hy2-port" data-i18n="settings.hy2ApplyPort">Применить порт Hy2</button>
+              <button class="btn btn-secondary mt-2" data-action="reinstall-hy2" data-i18n="settings.hy2Reinstall">Переустановить</button>
+              <div id="hy2-port-msg" class="msg-inline hidden"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header" data-i18n="settings.trafficTitle">Traffic Obfuscation</div>
+          <div class="card-body">
+            <p class="card-desc" data-i18n="settings.trafficDesc">Configure Mieru traffic obfuscation pattern and MTU.</p>
+            <div class="form-group">
+              <label data-i18n="settings.trafficPatternLabel">Traffic Pattern</label>
+              <div class="radio-group">
+                <label class="radio">
+                  <input type="radio" name="traffic-pattern" value="NOOP" checked />
+                  <div><strong data-i18n="settings.patternOff">Off</strong><small data-i18n="settings.patternOffDesc">No obfuscation</small></div>
+                </label>
+                <label class="radio">
+                  <input type="radio" name="traffic-pattern" value="RANDOM_PADDING" />
+                  <div><strong data-i18n="settings.patternLight">Light</strong><small data-i18n="settings.patternLightDesc">Random padding</small></div>
+                </label>
+                <label class="radio">
+                  <input type="radio" name="traffic-pattern" value="RANDOM_PADDING_AGGRESSIVE" />
+                  <div><strong data-i18n="settings.patternAggressive">Aggressive</strong><small data-i18n="settings.patternAggressiveDesc">Heavy obfuscation</small></div>
+                </label>
+              </div>
+            </div>
+            <div class="form-group">
+              <label data-i18n="settings.mtuLabel">MTU (1280–1400)</label>
+              <input type="number" id="s-mtu" min="1280" max="1400" value="1400" />
+            </div>
+            <button class="btn btn-primary mt-2" data-action="change-traffic-pattern" data-i18n="settings.applyPattern">Apply Pattern</button>
+            <div id="traffic-msg" class="msg-inline hidden"></div>
+          </div>
+        </div>
+
+        <div class="card" id="card-udp">
+          <div class="card-header" data-i18n="settings.udpTitle">UDP Mode (Mieru)</div>
+          <div class="card-body">
+            <p class="card-desc" data-i18n="settings.udpDesc">TCP-only is recommended and default. Enable UDP only if your network blocks TCP on Mieru ports. Requires full Mieru restart.</p>
+            <label class="checkbox" style="margin-bottom:12px">
+              <input type="checkbox" id="s-udp-enabled" />
+              <span data-i18n="settings.udpEnable">Enable UDP bindings alongside TCP</span>
+            </label>
+            <div class="alert alert-warning">
+              <strong>⚠</strong> <span data-i18n="settings.udpNote">UDP mode restarts Mieru. Test TCP first — it works on most networks.</span>
+            </div>
+            <button class="btn btn-primary mt-2" data-action="change-udp-mode" data-i18n="settings.applyUdp">Apply UDP Setting</button>
+            <div id="udp-msg" class="msg-inline hidden"></div>
+          </div>
+        </div>
+
+        <!-- Cascade / Relay card -->
+        <div class="card" id="card-cascade">
+          <div class="card-header" data-i18n="settings.cascadeTitle">Каскад / Relay</div>
+          <div class="card-body">
+            <p class="card-desc" data-i18n="settings.cascadeDesc">Настройка relay: трафик идёт через этот сервер (entry) на выходной сервер (exit), а затем в интернет. Mieru использует вариант B (mieru-client + redsocks + iptables) — провайдер видит только этот (entry) сервер.</p>
+            <label class="checkbox" style="margin-bottom:6px">
+              <input type="checkbox" id="s-cascade-enabled" />
+              <span data-i18n="settings.cascadeEnable">Включить каскад (relay)</span>
+            </label>
+            <p class="card-desc" style="margin:0 0 12px;font-size:12px;color:var(--text-muted)" data-i18n="settings.cascadeHy2Hint">ℹ Hysteria2 каскадируется автоматически через тот же Mieru-туннель (по владельцу процесса) — отдельный exit-адрес для Hy2 указывать не нужно. Достаточно заполнить Mieru exit ниже и включить эту галочку.</p>
+            <div class="form-group">
+              <label data-i18n="settings.cascadeNaiveUpstreamLabel">Naive upstream URL</label>
+              <input type="text" id="s-cascade-naive-upstream" placeholder="https://user:pass@exit.server:443" />
+              <small style="color:var(--text-muted);display:block;margin-top:4px" data-i18n="settings.cascadeNaiveUpstreamHint">Формат: https://user:pass@host:port (оставьте пустым, чтобы не каскадировать Naive)</small>
+            </div>
+            <div class="form-group">
+              <label data-i18n="settings.cascadeMieruHostLabel">Mieru exit host / IP</label>
+              <input type="text" id="s-cascade-mieru-host" placeholder="exit.server или 203.0.113.10" />
+              <small style="color:var(--text-muted);display:block;margin-top:4px" data-i18n="settings.cascadeMieruHostHint">Адрес выходной (EU) ноды, где установлен тот же скрипт. Оставьте пустым, чтобы не каскадировать Mieru.</small>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label data-i18n="settings.cascadeMieruPortStartLabel">Mieru exit port (start)</label>
+                <input type="number" id="s-cascade-mieru-port-start" min="1" max="65535" value="2012" />
+              </div>
+              <div class="form-group">
+                <label data-i18n="settings.cascadeMieruPortEndLabel">Mieru exit port (end)</label>
+                <input type="number" id="s-cascade-mieru-port-end" min="1" max="65535" value="2022" />
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label data-i18n="settings.cascadeMieruUserLabel">Mieru exit username</label>
+                <input type="text" id="s-cascade-mieru-user" placeholder="user" />
+              </div>
+              <div class="form-group">
+                <label data-i18n="settings.cascadeMieruPassLabel">Mieru exit password</label>
+                <input type="password" id="s-cascade-mieru-pass" placeholder="••••••• (оставьте пустым, чтобы не менять)" />
+              </div>
+            </div>
+            <div class="alert alert-warning">
+              <strong>⚠</strong> <span data-i18n="settings.cascadeNote">При включении каскада relay будет настроен и запущен (mieru-client + redsocks + iptables) — на это уйдёт до минуты при первой установке.</span>
+            </div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap">
+              <button class="btn btn-primary mt-2" id="btn-change-cascade" data-action="change-cascade" data-i18n="settings.applyCascade">Применить каскад</button>
+              <button class="btn btn-secondary mt-2" data-action="cascade-status" data-i18n="settings.cascadeStatusBtn">Проверить статус</button>
+              <!-- Доработка 1: explicit full teardown, separate from the checkbox -->
+              <button class="btn btn-danger mt-2" id="btn-reset-cascade" data-action="reset-cascade" data-i18n="settings.resetCascade">Сбросить каскад</button>
+            </div>
+            <pre id="cascade-status" class="hidden" style="margin-top:12px;padding:10px;background:var(--bg-2,#111);border-radius:8px;overflow:auto;font-size:12px;white-space:pre-wrap"></pre>
+            <div id="cascade-msg" class="msg-inline hidden"></div>
+          </div>
+        </div>
+
+        <!-- Cloudflare WARP egress card -->
+        <div class="card" id="card-warp">
+          <div class="card-header" data-i18n="settings.warpTitle">Cloudflare WARP (egress)</div>
+          <div class="card-body">
+            <p class="card-desc" data-i18n="settings.warpDesc">Выводит весь исходящий трафик сервера через Cloudflare WARP, скрывая реальный IP сервера. Режим на весь сервер. Взаимоисключающий с каскадом: активен ровно один из трёх режимов — родной IP / каскад / WARP.</p>
+            <label class="checkbox">
+              <input type="checkbox" id="s-warp-enabled" />
+              <span data-i18n="settings.warpEnable">Включить WARP (egress)</span>
+            </label>
+            <label class="checkbox" style="margin-top:6px">
+              <input type="checkbox" id="s-warp-persist" />
+              <span data-i18n="settings.warpPersist">Добавить в автозагрузку (поднимать после перезагрузки). По умолчанию ВЫКЛ — безопаснее: после ребута WARP не поднимется сам, доступ к серверу гарантирован.</span>
+            </label>
+            <div class="msg-inline" style="margin-top:8px">
+              <strong>ℹ</strong> <span data-i18n="settings.warpSafeNote">SSH и порт панели НЕ заворачиваются в туннель — доступ к серверу сохраняется. В WARP идёт только исходящий прокси-трафик.</span>
+            </div>
+            <div id="warp-cascade-lock" class="msg-inline hidden" style="margin-top:8px">
+              <strong>⚠</strong> <span data-i18n="settings.warpCascadeLock">Каскад включён — сначала отключите каскад. WARP и каскад нельзя использовать одновременно.</span>
+            </div>
+            <div id="warp-lowram" class="msg-inline hidden" style="margin-top:8px"></div>
+            <div class="form-group" style="margin-top:8px">
+              <button class="btn btn-primary mt-2" id="btn-apply-warp" data-action="apply-warp" data-i18n="settings.applyWarp">Применить WARP</button>
+              <button class="btn btn-secondary mt-2" data-action="warp-status" data-i18n="settings.warpStatusBtn">Проверить статус (egress IP)</button>
+              <button class="btn btn-danger mt-2" id="btn-reset-warp" data-action="reset-warp" data-i18n="settings.resetWarp">Сбросить WARP</button>
+            </div>
+            <pre id="warp-status" class="hidden" style="margin-top:12px;padding:10px;background:var(--bg-2,#111);border-radius:8px;overflow:auto;font-size:12px;white-space:pre-wrap"></pre>
+            <div id="warp-msg" class="msg-inline hidden"></div>
+          </div>
+        </div>
+
+        <!-- Language selector card -->
+        <div class="card">
+          <div class="card-header" data-i18n="settings.languageTitle">Interface Language</div>
+          <div class="card-body">
+            <p class="card-desc" data-i18n="settings.languageDesc">Select web-panel language. Choice is saved in browser.</p>
+            <div class="form-group">
+              <select id="s-language-select">
+                <option value="ru">🇷🇺 Русский</option>
+                <option value="en">🇬🇧 English</option>
+              </select>
+            </div>
+            <button class="btn btn-primary mt-2" data-action="change-language" data-i18n="settings.applyLanguage">Apply</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header" data-i18n="settings.passwordTitle">Panel Password</div>
+          <div class="card-body">
+            <div class="form-group">
+              <label for="s-cur-pass" data-i18n="settings.currentPassword">Current Password</label>
+              <input type="password" id="s-cur-pass"
+                     data-i18n-ph="settings.currentPassword"
+                     placeholder="Current password"
+                     autocomplete="current-password"
+                     aria-label="Current password" />
+            </div>
+            <div class="form-group">
+              <label for="s-new-pass" data-i18n="settings.newPassword">New Password</label>
+              <input type="password" id="s-new-pass"
+                     data-i18n-ph="settings.passwordTooShort"
+                     placeholder="New password (min 8 chars)"
+                     autocomplete="new-password"
+                     aria-label="New password" />
+            </div>
+            <div class="form-group">
+              <label for="s-new-pass2" data-i18n="settings.confirmPassword">Confirm New Password</label>
+              <input type="password" id="s-new-pass2"
+                     data-i18n-ph="settings.confirmPassword"
+                     placeholder="Repeat new password"
+                     autocomplete="new-password"
+                     aria-label="Confirm new password" />
+            </div>
+            <button class="btn btn-primary" data-action="change-password" data-i18n="settings.changePassword">Change Password</button>
+            <div id="pw-msg" class="msg-inline hidden"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- v1.6.0: Backup / Restore card -->
+      <div class="card mt-4" id="card-backup">
+        <div class="card-header" data-i18n="settings.backupTitle">Backup &amp; Restore</div>
+        <div class="card-body">
+          <p class="card-desc" data-i18n="settings.backupDesc">
+            Export a full backup (all users + all settings) to a single file, or restore it on a fresh server.
+            If the new server uses the same domain (just point DNS to it), existing client keys keep working with no changes.
+          </p>
+          <div class="warn-box" data-i18n="settings.backupWarn">
+            ⚠ The backup file contains user passwords in plain text. Store it somewhere safe and never share it.
+          </div>
+          <div class="btn-row mt-2">
+            <button class="btn btn-primary"   data-action="backup-export">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              <span data-i18n="settings.backupExport">Download backup</span>
+            </button>
+            <button class="btn btn-secondary" data-action="backup-import-pick">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+              <span data-i18n="settings.backupImport">Restore from backup</span>
+            </button>
+            <input type="file" id="backup-file-input" accept="application/json,.json" style="display:none" />
+          </div>
+          <div id="backup-import-msg" class="msg-inline hidden"></div>
+        </div>
+      </div>
+
+      <div class="card mt-4">
+        <div class="card-header" data-i18n="settings.aboutTitle">About</div>
+        <div class="card-body about-grid">
+          <div>
+            <div class="info-list">
+              <div class="info-row"><span data-i18n="settings.panelVersion">Panel Version</span><span id="about-version">v1.5.0</span></div>
+              <div class="info-row"><span data-i18n="settings.author">Author</span><span>RIXXX</span></div>
+              <div class="info-row"><span>GitHub</span><a href="https://github.com/cwash797-cmd" target="_blank">cwash797-cmd</a></div>
+              <div class="info-row"><span>Telegram</span><a href="https://t.me/russian_paradice_vpn" target="_blank">@russian_paradice_vpn</a></div>
+              <div class="info-row"><span>Donate</span><a href="https://app.lava.top/2107724612?tabId=donate" target="_blank">lava.top</a></div>
+            </div>
+          </div>
+          <div>
+            <h5 data-i18n="settings.clientApps">Client Applications</h5>
+            <div class="app-links">
+              <a href="https://github.com/KaringX/karing/releases"          target="_blank" class="app-link">📱 Karing (iOS / Android)</a>
+              <a href="https://github.com/KaringX/karing/releases"          target="_blank" class="app-link">🪟 Karing (Windows / macOS / Linux)</a>
+              <a href="https://apps.apple.com/app/shadowrocket/id932747118" target="_blank" class="app-link">📱 ShadowRocket (iOS — Naive)</a>
+              <a href="https://apps.apple.com/app/sing-box/id6451272673"    target="_blank" class="app-link">📱 Sing-box (iOS)</a>
+              <a href="https://github.com/SagerNet/sing-box/releases"       target="_blank" class="app-link">🤖 Sing-box (Android / Windows / Linux)</a>
+              <a href="https://github.com/klzgrad/naiveproxy/releases"      target="_blank" class="app-link">🛡 NaiveProxy CLI</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── FEDERATION (multi-panel link) ─────────────────────── -->
+    <section id="page-federation" class="content-page">
+      <div class="page-header"><h3 data-i18n="federation.title">Federation</h3></div>
+      <p class="card-desc" style="margin:0 0 16px" data-i18n="federation.intro">
+        Link several panels so one subscription link delivers configs from multiple servers.
+        Users are matched across servers by their <strong>email</strong>. This panel <em>pulls</em>
+        configs from the peer nodes you add below and merges them into each user's subscription.
+      </p>
+      <div class="grid grid-2">
+
+        <!-- This server's NODE token (so OTHER panels can pull from us) -->
+        <div class="card">
+          <div class="card-header" data-i18n="federation.nodeTokenTitle">This server's node token</div>
+          <div class="card-body">
+            <p class="card-desc" data-i18n="federation.nodeTokenDesc">
+              Give this token to another (main) panel so it can pull this server's configs.
+              Keep it secret — anyone with it can request configs by email. Empty = this server
+              will not answer federation requests.
+            </p>
+            <div class="form-group">
+              <label data-i18n="federation.nodeTokenLabel">Node token</label>
+              <div class="input-with-btn">
+                <input type="text" id="s-federation-token" autocomplete="off"
+                       data-i18n-ph="federation.nodeTokenPlaceholder" placeholder="not set" />
+                <button type="button" class="btn btn-secondary" data-action="gen-federation-token"
+                        data-i18n="federation.generate">Generate</button>
+                <button type="button" class="btn btn-secondary" data-action="copy-federation-token"
+                        data-i18n="federation.copy">Copy</button>
+              </div>
+              <small class="form-hint" id="federation-token-hint" data-i18n="federation.nodeTokenHint">
+                A token is set. Regenerating replaces it — peers using the old one stop working.
+              </small>
+            </div>
+            <button class="btn btn-primary mt-2" data-action="save-federation-token"
+                    data-i18n="federation.saveNodeToken">Save node token</button>
+            <div id="federation-token-msg" class="msg-inline hidden"></div>
+          </div>
+        </div>
+
+        <!-- Peer nodes this panel pulls FROM -->
+        <div class="card">
+          <div class="card-header" data-i18n="federation.nodesTitle">Peer servers (pulled into subscriptions)</div>
+          <div class="card-body">
+            <p class="card-desc" data-i18n="federation.nodesDesc">
+              Add each other panel by its base URL and that panel's node token.
+              Disabled or unreachable peers are silently skipped — a subscription never breaks.
+            </p>
+
+            <div id="federation-nodes-list"></div>
+
+            <div class="mt-2" style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+              <button class="btn btn-secondary btn-sm" data-action="test-federation-nodes"
+                      data-i18n="federation.testConns">Test connections</button>
+              <small class="form-hint" data-i18n="federation.testConnsHint">Checks each peer for DNS / TLS / token problems without changing anything.</small>
+            </div>
+            <div id="federation-test-results" class="mt-2"></div>
+
+            <hr style="border:none;border-top:1px solid var(--border);margin:16px 0">
+            <div class="form-group">
+              <label data-i18n="federation.addName">Name (label)</label>
+              <input type="text" id="fed-new-name" maxlength="64" placeholder="🇳🇱 NL-2" autocomplete="off" />
+            </div>
+            <div class="form-group">
+              <label data-i18n="federation.addUrl">Peer sub-domain URL</label>
+              <input type="text" id="fed-new-url" placeholder="https://sub.panel2.example.com" autocomplete="off" />
+              <small class="form-hint" data-i18n="federation.addUrlHint">Use the peer's SUBSCRIPTION domain (Settings → Subscription Domain on that panel), e.g. https://sub.example.com — NOT its main/fake-site domain. Federation is served there next to /sub.</small>
+            </div>
+            <div class="form-group">
+              <label data-i18n="federation.addToken">That panel's node token</label>
+              <input type="text" id="fed-new-token" placeholder="64-hex token" autocomplete="off" />
+            </div>
+            <button class="btn btn-primary mt-2" data-action="add-federation-node"
+                    data-i18n="federation.addNode">Add peer server</button>
+            <div id="federation-nodes-msg" class="msg-inline hidden"></div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ── MONITORING ────────────────────────────────────────── -->
+    <section id="page-monitoring" class="content-page">
+      <div class="page-header">
+        <h3 data-i18n="monitoring.title">Monitoring</h3>
+        <button class="btn btn-ghost btn-sm" data-action="refresh-stats">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+          <span data-i18n="monitoring.refresh">Refresh</span>
+        </button>
+      </div>
+
+      <div class="metrics-strip" id="live-metrics">
+        <div class="metric-chip"><span class="metric-label" data-i18n="monitoring.cpu">CPU</span><span class="metric-val" id="m-cpu">—%</span></div>
+        <div class="metric-chip"><span class="metric-label" data-i18n="monitoring.ram">RAM</span><span class="metric-val" id="m-ram">—</span></div>
+        <div class="metric-chip"><span class="metric-label" data-i18n="monitoring.naiveProxy">NaiveProxy</span><span class="metric-val" id="m-naive">—</span></div>
+        <div class="metric-chip"><span class="metric-label" data-i18n="monitoring.mieru">Mieru</span><span class="metric-val" id="m-mieru">—</span></div>
+        <div class="metric-chip"><span class="metric-label" data-i18n="monitoring.uptime">Uptime</span><span class="metric-val" id="m-uptime">—</span></div>
+      </div>
+
+      <div class="card mt-4">
+        <div class="card-header" data-i18n="monitoring.trafficTitle">User Traffic &amp; Quota</div>
+        <div class="table-wrap">
+          <table class="data-table" id="traffic-table">
+            <thead>
+              <tr>
+                <th data-i18n="monitoring.username">Username</th>
+                <th data-i18n="monitoring.upload">Upload (MB)</th>
+                <th data-i18n="monitoring.download">Download (MB)</th>
+                <th data-i18n="monitoring.totalUsed">Total Used (MB)</th>
+                <th data-i18n="monitoring.quota">Quota (MB)</th>
+                <th data-i18n="monitoring.quotaUsed">Quota Used</th>
+                <th data-i18n="monitoring.expiry">Expiry</th>
+                <th data-i18n="monitoring.lastActive">Last Active</th>
+              </tr>
+            </thead>
+            <tbody id="traffic-tbody">
+              <tr><td colspan="8" class="table-empty" data-i18n="users.loading">Loading…</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── LOGS ──────────────────────────────────────────────── -->
+    <section id="page-logs" class="content-page">
+      <div class="page-header">
+        <h3 data-i18n="logs.title">Logs</h3>
+        <div class="btn-group">
+          <button class="btn btn-ghost btn-sm active" data-action="load-logs" data-log-svc="caddy" id="log-btn-caddy" data-i18n="logs.naive">Naive</button>
+          <button class="btn btn-ghost btn-sm"        data-action="load-logs" data-log-svc="mieru" id="log-btn-mieru" data-i18n="logs.mieru">Mieru</button>
+          <button class="btn btn-ghost btn-sm"        data-action="load-logs" data-log-svc="hy2"   id="log-btn-hy2"   data-i18n="logs.hy2">Hy2</button>
+          <button class="btn btn-ghost btn-sm"        data-action="load-logs" data-log-svc="panel" id="log-btn-panel" data-i18n="logs.panel">Panel</button>
+        </div>
+      </div>
+      <div class="card">
+        <div class="log-toolbar">
+          <select id="log-lines">
+            <option value="50"  data-i18n="logs.lines50">50 lines</option>
+            <option value="100" selected data-i18n="logs.lines100">100 lines</option>
+            <option value="200" data-i18n="logs.lines200">200 lines</option>
+            <option value="500" data-i18n="logs.lines500">500 lines</option>
+          </select>
+          <button class="btn btn-ghost btn-sm" data-action="refresh-logs">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+            <span data-i18n="logs.refresh">Refresh</span>
+          </button>
+        </div>
+        <pre class="log-viewer" id="log-content" data-i18n="logs.selectLog">Select a log above…</pre>
+      </div>
+    </section>
+
+    <!-- ── DIAGNOSTICS ───────────────────────────────────────── -->
+    <section id="page-diagnostics" class="content-page">
+      <div class="page-header">
+        <h3 data-i18n="diagnostics.title">Diagnostics</h3>
+        <button class="btn btn-primary btn-sm" data-action="run-diagnostics" data-i18n="diagnostics.runChecks">Run Checks</button>
+      </div>
+      <div class="grid grid-2">
+        <div class="card">
+          <div class="card-header" data-i18n="diagnostics.portStatus">Port Status</div>
+          <div class="card-body" id="diag-ports">
+            <p class="text-muted" data-i18n="diagnostics.clickToRun">Click "Run Checks" to begin.</p>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header" data-i18n="diagnostics.configValidation">Config Validation</div>
+          <div class="card-body" id="diag-config">
+            <p class="text-muted">—</p>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header" data-i18n="diagnostics.mitaStatus">Mita Status</div>
+          <div class="card-body">
+            <pre class="mini-log" id="diag-mita-status">—</pre>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header" data-i18n="diagnostics.mitaConfig">Mita Config (describe)</div>
+          <div class="card-body">
+            <pre class="mini-log" id="diag-mita-config">—</pre>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<!-- Toast container -->
+<div id="toast-container"></div>
+
+<script src="app.js"></script>
+</body>
+</html>
