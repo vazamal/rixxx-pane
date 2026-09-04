@@ -9,13 +9,111 @@
 **v1.11.1** — Веб-панель управления NaiveProxy + Mieru + Hysteria2 для Ubuntu/Debian VPS
 
 [![Telegram](https://img.shields.io/badge/Telegram-@russian__paradice__vpn-2CA5E0?logo=telegram&logoColor=white)](https://t.me/russian_paradice_vpn)
-[![GitHub](https://img.shields.io/badge/GitHub-cwash797--cmd-181717?logo=github)](https://github.com/cwash797-cmd/Panel-Naive-Mieru-by-RIXXX)
+[![GitHub](https://img.shields.io/badge/GitHub-vazamal--rixxx--pane-181717?logo=github)](https://github.com/vazamal/rixxx-pane)
 [![License](https://img.shields.io/badge/License-MIT-bronze?color=c08552)](LICENSE)
 
 > 💬 **Поддержка и обновления:** [t.me/russian_paradice_vpn](https://t.me/russian_paradice_vpn)  
 > ☕ **Поддержать проект:** [app.lava.top/2107724612](https://app.lava.top/2107724612?tabId=donate)
 
 </div>
+
+---
+
+## 🔀 Форк RIXXX: режим «Дверь» + вкладка «Зеркальные»
+
+Этот форк добавляет к панели **режим входной двери** в каскаде и **вкладку «Зеркальные»** для интеграции с Telegram-ботом. Панель ставится тем же `install.sh`; отличия форка описаны ниже.
+
+### Что добавлено
+
+- **Вкладка «Зеркальные»** в веб-панели — read-only список пользователей, которых бот зеркалирует **напрямую** в `Caddyfile` (naive `basic_auth`) и `mita-state.json` (mieru), минуя SQLite панели. Позволяет видеть клиентов на двери, не залезая в конфиги.
+- **Слияние (merge) при зеркалировании** — зеркало больше **не затирает** пользователей, созданных вручную через панель. Локальные пользователи без срока (`expiry IS NULL`) выживают при любом ре-зеркале; при совпадении имени приоритет у локального пользователя.
+
+### Архитектура: клиент → дверь → выход
+
+```
+Клиент ──► Дверь (naive:443 / mieru:2012) ──► Выход (naive + mieru) ──► интернет
+                │  upstream chain1 ────────────┘
+Telegram-бот ──зеркалит юзеров──► Дверь
+```
+
+| Роль | Что это | Кто управляет |
+|------|---------|----------------|
+| **Дверь** (RU) | Точка входа для клиентов, каскадится на выход | ставится `install.sh`, юзеров зеркалит бот |
+| **Выход** (EU) | Второй сервер с этой же панелью, один служебный юзер `chain1` | вручную/панелью |
+| **Бот** | Источник правды (своя БД): создаёт/удаляет юзеров и зеркалит их на двери по SSH | твой Telegram-бот |
+
+### Быстрая установка двери (non-interactive)
+
+```bash
+git clone https://github.com/vazamal/rixxx-pane.git
+cd rixxx-pane
+sudo bash install.sh --non-interactive --lang ru \
+  --domain door.example.com --email admin@example.com \
+  --admin-user admin --admin-pass 'СЛОЖНЫЙ_ПАРОЛЬ' \
+  --naive-port 443 --mieru-start 2012 --mieru-end 2022 \
+  --fake-site-url https://www.example.com
+```
+
+> ⚠️ A-запись `door.example.com` должна указывать на IP этого сервера (в Cloudflare — серое облако, DNS-only), иначе TLS-сертификат не выпустится.
+
+### Полные флаги установщика
+
+| Флаг | Описание | По умолчанию |
+|------|----------|--------------|
+| `--non-interactive` / `-y` | Без вопросов (требует `--domain`) | — |
+| `--force` | Переустановка поверх существующей | — |
+| `--domain` | Домен/хост панели (A-запись → IP) | обязателен в non-interactive |
+| `--email` | Email для TLS (Caddy, TLS-ALPN-01) | — |
+| `--admin-user` / `--admin-pass` | Логин/пароль веб-панели | интерактивный ввод |
+| `--naive-port` | Порт NaiveProxy | `443` |
+| `--mieru-start` / `--mieru-end` | Диапазон портов Mieru | `2012`–`2022` |
+| `--fake-site-url` | Фейковый сайт для неопознанных клиентов | `https://www.example.com` |
+| `--probe-secret` | Секрет защиты от зондирования | авто-генерация |
+| `--web-base-path` | Случайный путь панели при внешнем доступе | авто |
+| `--lang` | Язык | `ru` |
+
+### Настройка каскада «дверь → выход»
+
+В UI двери: **Настройки → Каскад** (или `POST /api/settings/cascade`):
+
+```json
+{
+  "cascadeEnabled": true,
+  "cascadeNaiveUpstream": "https://chain1:ПАРОЛЬ@exit.example.com:443",
+  "cascadeMieru": {
+    "host": "IP_ВЫХОДА",
+    "portStart": 2012,
+    "portEnd": 2022,
+    "user": "chain1",
+    "pass": "ПАРОЛЬ",
+    "mtu": 1400
+  }
+}
+```
+
+> ⚠️ **Naive-upstream обязательно по домену, а не по IP** — иначе SNI не совпадёт с сертификатом выхода и каскад вернёт `502` / `tls: internal error`. Mieru-хост можно оставить IP (mieru не использует TLS-SNI).
+
+### Вкладка «Зеркальные»
+
+- **Что показывает:** пользователей, которых бот зеркалирует (из `Caddyfile` + `mita-state.json`), с пометками naive/mieru.
+- **Эндпоинт:** `GET /api/mirrored-users` (требует авторизацию панели).
+- **Read-only:** вкладка ничего не меняет — управление остаётся у бота.
+
+### Как бот зеркалирует (поведение merge)
+
+1. Бот держит пользователей в своей БД и при создании/удалении/рестарте пересобирает конфиги дверей по SSH.
+2. Зеркало **сливает** своих юзеров с локальными юзерами SQLite двери:
+   - локальный юзер **без срока** (`expiry IS NULL`) — не удаляется зеркалом никогда;
+   - локальный юзер **с датой** — живёт до истечения, дальше cron панели удаляет его, и зеркало перестаёт его подхватывать;
+   - при совпадении имени — приоритет у локального юзера.
+
+### Обновление / удаление
+
+```bash
+sudo bash update.sh --status     # состояние установки
+sudo bash update.sh --repair     # починить сломанную установку
+sudo bash uninstall.sh           # полное удаление
+```
 
 ---
 
@@ -51,8 +149,8 @@
 
 ```bash
 # 1. Клонировать репозиторий
-git clone https://github.com/cwash797-cmd/Panel-Naive-Mieru-by-RIXXX.git
-cd Panel-Naive-Mieru-by-RIXXX
+git clone https://github.com/vazamal/rixxx-pane.git
+cd rixxx-pane
 
 # 2. Запустить установщик от root
 sudo bash install.sh
